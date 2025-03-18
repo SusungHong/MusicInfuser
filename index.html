@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>MusicInfuser: Making Video Diffusion Listen and Dance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #333;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            background: #f8f9fa;
+        }
+
+        .main-container {
+            width: 100%;
+            min-height: 100vh;
+            background: #f8f9fa;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding-bottom: 50px;
+        }
+
+        .conference {
+            color: #e0e0e0;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(to right, #4b2e83, #85754d);
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .abstract {
+            max-width: 1000px;
+            margin: 0 auto 40px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .abstract p {
+            text-align: left;
+            color: #444;
+            line-height: 1.7;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 30px;
+            line-height: 1.3;
+            color: white;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin: 30px 0 20px;
+            color: #2c3e50;
+            padding-bottom: 10px;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .authors {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .author {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .author:hover {
+            color: #3498db;
+        }
+
+        .affiliations {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .button:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .video-section {
+            margin: 40px auto;
+            max-width: 1000px;
+        }
+
+        .video-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .video-box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .video-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .video-description {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+        }
+
+        .section-divider {
+            margin: 50px auto;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #beb3d2, transparent);
+            width: 80%;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .bibtex {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 15px auto;
+            border: 1px solid #eee;
+            white-space: pre-wrap;
+            text-align: left;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <h1>MusicInfuser: Making Video Diffusion Listen and Dance</h1>
+            
+            <div class="authors">
+                <a href="https://susunghong.github.io" class="author">Susung Hong</a>
+                <a href="https://www.irakemelmacher.com/home" class="author">Ira Kemelmacher-Shlizerman</a>
+                <a href="https://homes.cs.washington.edu/~curless/" class="author">Brian Curless</a>
+                <a href="https://www.smseitz.com/" class="author">Steven M. Seitz</a>
+            </div>
+
+            <div class="affiliations">
+                <div>University of Washington</div>
+            </div>
+            
+            <div class="buttons">
+                <a href="#" class="button"><i class="fa-solid fa-file-pdf"></i>&ensp;Paper</a>
+                <a href="#" class="button"><i class="fa-brands fa-github"></i>&ensp;Code</a>
+            </div>
+        </header>
+
+
+        <section class="video-section">
+          <h2>Please turn on your audio! 🔈</h2>
+            
+            <div class="video-box">
+                <div class="video-title">Comparison with Prior Work</div>
+                <div class="video-description">MusicInfuser infuses listening capability into the text-to-video model (Mochi), while preserving the prompt adherence and improving overall consistency and realism.</div>
+                <video controls>
+                    <source src="assets/comparison.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <div class="abstract">
+          <h2>Abstract</h2>
+          <p>We introduce MusicInfuser, an approach for generating high-quality dance videos that are synchronized to a specified music track. Rather than attempting to design and train a new multimodal audio-video model, we show how existing video diffusion models can be adapted to align with musical inputs by introducing music-video cross-attention and a low-rank adapter. Unlike prior work requiring motion capture data, our approach fine-tunes only on dance videos. MusicInfuser achieves high-quality music-driven video generation while preserving the flexibility and generative capabilities of the underlying models. We introduce an evaluation framework using Video-LLMs to assess multiple dimensions of dance generation quality.</p>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <section class="video-section">
+          <div class="video-box">
+              <div class="video-title">Music- and Text-Controlled Dance Generation</div>
+              <div class="video-description">Dance generation with different music tracks and text prompts, showing the ability to control the style, setting, and dancer attributes.</div>
+              <video controls>
+                  <source src="assets/ours_text.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+              </video>
+          </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section class="video-section">
+            <h2>Speed Control</h2>
+            
+            <div class="grid-container">
+                <div class="video-box">
+                    <div class="video-title">Speed Control</div>
+                    <div class="video-description">The audio input is modified to different speeds, affecting the dance movement accordingly.</div>
+                    <video controls>
+                        <source src="assets/speed_basic.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                
+                <div class="video-box">
+                    <div class="video-title">Speed Control (Advanced Dance)</div>
+                    <div class="video-description">Same setup but including "advanced dance" in the prompt. Complex choreography also adjusts to speed changes.</div>
+                    <video controls>
+                        <source src="assets/speed_advanced.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section class="video-section">
+            <h2>Group Dance Generation</h2>
+            
+            <div class="grid-container">
+                <div class="video-box">
+                    <div class="video-title">Two Dancers</div>
+                    <div class="video-description">MusicInfuser generalizes to generate dance videos with two dancers by simply modulating the prompt.</div>
+                    <video controls>
+                        <source src="assets/two.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                
+                <div class="video-box">
+                    <div class="video-title">Multiple Dancers</div>
+                    <div class="video-description">MusicInfuser also generalizes to generate dance videos with a lot of dancers.</div>
+                    <video controls>
+                        <source src="assets/multiple.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section class="video-section">
+            
+            <div class="video-box">
+                <div class="video-title">Generalization to Unseen Music</div>
+                <div class="video-description">MusicInfuser shows flexibility by adapting to in-the-wild music tracks outside the training distribution.</div>
+                <video controls>
+                    <source src="assets/in_the_wild.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section class="video-section">
+            
+            <div class="video-box">
+                <div class="video-title">Extended Duration Generation (Extrapolation)</div>
+                <div class="video-description">We generate longer dance videos that are 2 times longer than the videos used for training, demonstrating our method's ability to generalize to longer sequences.</div>
+                <video controls>
+                    <source src="assets/long_video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+
+
+        <div class="section-divider"></div>
+
+        <section class="citation-section">
+            <h2>Citation</h2>
+            <pre class="bibtex">@article</pre>
+        </section>
+    </div>
+</body>
+</html>
