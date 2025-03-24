@@ -430,38 +430,6 @@ def main(config_path):
             
             model.train()
 
-        if cfg.training.save_interval and step > 0 and step % cfg.training.save_interval == 0:
-            with timer("get_state_dict"):
-                if is_lora:
-                    model_sd = lora.lora_state_dict(model, bias="none")
-                elif is_full:
-                    # NOTE: Not saving optimizer state dict to save space.
-                    model_sd, _optimizer_sd = get_state_dict(
-                        model, [], options=StateDictOptions(cpu_offload=True, full_state_dict=True)
-                    )
-                else:
-                    model_sd = {}
-                if is_audio:
-                    audio_sd = model.audio_projection.get_state_dict()
-                    model_sd.update(audio_sd)
-                    if model.audio_cross_attn_blocks:
-                        audio_ca_sd = model.audio_cross_attn_blocks.state_dict()
-                        audio_ca_sd = {f'audio_cross_attn_blocks.{k}': v for k, v in audio_ca_sd.items()}
-                        model_sd.update(audio_ca_sd)
-
-            checkpoint_filename = f"model_{step}.{'adapter' if is_lora or is_audio else 'checkpoint'}.pt"
-            save_path = checkpoint_dir / checkpoint_filename
-            if cfg.training.get("save_safetensors", True):
-                save_path = save_path.with_suffix(".safetensors")
-                save_file(
-                    model_sd, save_path,
-                    # `safetensors` only supports string-to-string metadata,
-                    # so we serialize the kwargs to a JSON string.
-                    metadata=dict(kwargs=json.dumps(model_kwargs)),
-                )
-            else:
-                torch.save(model_sd, save_path)
-
         with torch.no_grad(), timer("load_batch", enabled=False):
             batch = get_batch()
             embed, z, eps, sigma, audio_embed = map_to_device(batch, device)
@@ -510,6 +478,38 @@ def main(config_path):
         scheduler.step()
         optimizer.zero_grad()
         clear_cuda_cache()
+        
+        if cfg.training.save_interval and step > 0 and (step + 1) % cfg.training.save_interval == 0:
+            with timer("get_state_dict"):
+                if is_lora:
+                    model_sd = lora.lora_state_dict(model, bias="none")
+                elif is_full:
+                    # NOTE: Not saving optimizer state dict to save space.
+                    model_sd, _optimizer_sd = get_state_dict(
+                        model, [], options=StateDictOptions(cpu_offload=True, full_state_dict=True)
+                    )
+                else:
+                    model_sd = {}
+                if is_audio:
+                    audio_sd = model.audio_projection.get_state_dict()
+                    model_sd.update(audio_sd)
+                    if model.audio_cross_attn_blocks:
+                        audio_ca_sd = model.audio_cross_attn_blocks.state_dict()
+                        audio_ca_sd = {f'audio_cross_attn_blocks.{k}': v for k, v in audio_ca_sd.items()}
+                        model_sd.update(audio_ca_sd)
+
+            checkpoint_filename = f"model_{step+1}.{'adapter' if is_lora or is_audio else 'checkpoint'}.pt"
+            save_path = checkpoint_dir / checkpoint_filename
+            if cfg.training.get("save_safetensors", True):
+                save_path = save_path.with_suffix(".safetensors")
+                save_file(
+                    model_sd, save_path,
+                    # `safetensors` only supports string-to-string metadata,
+                    # so we serialize the kwargs to a JSON string.
+                    metadata=dict(kwargs=json.dumps(model_kwargs)),
+                )
+            else:
+                torch.save(model_sd, save_path)
 
 
 if __name__ == "__main__":
