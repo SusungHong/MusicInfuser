@@ -4,11 +4,11 @@
 
 MusicInfuser adapts a text-to-video diffusion model to align with music, generating dance videos according to the music and text prompts.
 
-## Requirements
+## 🚧 Requirements
 
 We have tested on Python 3.10 with `torch>=2.4.1+cu118`, `torchaudio>=2.4.1+cu118`, and `torchvision>=0.19.1+cu118`. This repository requires a single A100 GPU for training and inference.
 
-## Installation
+## 🧱 Installation
 ```bash
 # Clone the repository
 git clone https://github.com/SusungHong/MusicInfuser
@@ -26,7 +26,7 @@ pip install -e ./mochi --no-build-isolation
 python ./music_infuser/download_weights.py weights/
 ```
 
-## Inference
+## 🎞️ Inference
 To generate videos from music inputs:
 ```bash
 python inference.py --input-file {MP3 or MP4 to extract audio from} \
@@ -43,10 +43,10 @@ also consider:
 - `--seed`: Random seed for generation. The resulting dance also depends on the random seed, so feel free to change it. Default: `None`
 - `--cfg-scale`: Classifier-Free Guidance (CFG) scale for the text prompt. Default: `6.0`
 
-## Dataset
+## 📀 Dataset
 For the AIST dataset, please see the terms of use and download it at [the AIST Dance Video Database](https://aistdancedb.ongaaccel.jp/).
 
-## Training
+## 🚊 Training
 To train the model on your dataset:
 
 1. Preprocess your data:
@@ -61,14 +61,14 @@ bash music_infuser/run.bash -c music_infuser/configs/music_infuser.yaml -n 1
 
 **Note:** The current implementation only supports single-GPU training, which requires approximately 80GB of VRAM to train with 73-frame sequences.
 
-## VLM Evaluation
+## 🧑‍⚖️ VLM Evaluation
 For evaluating the model using Visual Language Models:
 
 1. Follow the instructions in `vlm_eval/README.md` to set up the VideoLLaMA2 evaluation framework
 2. It is recommended to use a separate environment from MusicInfuser for the evaluation
 
 
-## Citation
+## 📚 Citation
 
 ```bibtex
 @article{hong2025musicinfuser,
@@ -79,7 +79,7 @@ For evaluating the model using Visual Language Models:
 }
 ```
 
-## Acknowledgements
+## 🙏 Acknowledgements
 
 This code builds upon the following awesome repositories:
 - [Mochi](https://github.com/genmoai/mochi)
