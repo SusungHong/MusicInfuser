@@ -64,8 +64,10 @@ bash music_infuser/run.bash -c music_infuser/configs/music_infuser.yaml -n 1
 ## 🧑‍⚖️ VLM Evaluation
 For evaluating the model using Visual Language Models:
 
-1. Follow the instructions in `vlm_eval/README.md` to set up the VideoLLaMA2 evaluation framework
-2. It is recommended to use a separate environment from MusicInfuser for the evaluation
+1. Follow the instructions in `vlm_eval/README.md` to set up the VideoLLaMA2 evaluation framework.
+2. It is recommended to use a separate environment from MusicInfuser for the evaluation.
+
+We're currently working on tidying up the evaluation script.
 
 
 ## 📚 Citation
