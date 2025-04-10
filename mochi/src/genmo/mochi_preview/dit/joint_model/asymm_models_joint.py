@@ -426,7 +426,6 @@ class AsymmetricJointBlock(nn.Module):
         x: torch.Tensor,
         c: torch.Tensor,
         y: torch.Tensor,
-        perturb_mode: str,
         # TODO: These could probably just go into attn_kwargs
         checkpoint_ff: bool = False,
         checkpoint_qkv: bool = False,
@@ -445,8 +444,6 @@ class AsymmetricJointBlock(nn.Module):
             x: (B, N, dim) tensor of visual tokens after block
             y: (B, L, dim) tensor of text tokens after block
         """
-        if perturb_mode == "STG-R":
-            return x, y
         N = x.size(1)
 
         c = F.silu(c)
@@ -709,7 +706,6 @@ class AsymmDiTJoint(nn.Module):
         num_qkv_checkpoint: int = 0,
         num_post_attn_checkpoint: int = 0,
         audio_feat: torch.Tensor = None,
-        stg_block_idx: List[int] = None,
     ):
         """Forward pass of DiT.
 
@@ -721,8 +717,6 @@ class AsymmDiTJoint(nn.Module):
             packed_indices: Dict with keys for Flash Attention. Result of compute_packed_indices.
         """
         _, _, T, H, W = x.shape
-
-        is_perturbed = stg_block_idx is not None
 
         if self.pos_frequencies.dtype != torch.float32:
             warnings.warn(f"pos_frequencies dtype {self.pos_frequencies.dtype} != torch.float32")
@@ -746,45 +740,19 @@ class AsymmDiTJoint(nn.Module):
             rope_cos = rope_cos.narrow(1, cp_rank * local_heads, local_heads)
             rope_sin = rope_sin.narrow(1, cp_rank * local_heads, local_heads)
 
-        if is_perturbed:
-            if isinstance(stg_block_idx, list):
-                perturb_mode = "STG-R"
-            else:
-                raise TypeError("stg_block_idx must be a list")
-        else:
-            perturb_mode = "None"
-
         for i, block in enumerate(self.blocks):
             
-            if is_perturbed and i in stg_block_idx and perturb_mode == "STG-R":
-
-                x, y_feat = block(
-                    x,
-                    c,
-                    y_feat,
-                    perturb_mode=perturb_mode,
-                    rope_cos=rope_cos,
-                    rope_sin=rope_sin,
-                    packed_indices=packed_indices,
-                    checkpoint_ff=i < num_ff_checkpoint,
-                    checkpoint_qkv=i < num_qkv_checkpoint,
-                    checkpoint_post_attn=i < num_post_attn_checkpoint,
-                )  # (B, M, D), (B, L, D)
-            
-            else:
-
-                x, y_feat = block(
-                    x,
-                    c,
-                    y_feat,
-                    perturb_mode="None",
-                    rope_cos=rope_cos,
-                    rope_sin=rope_sin,
-                    packed_indices=packed_indices,
-                    checkpoint_ff=i < num_ff_checkpoint,
-                    checkpoint_qkv=i < num_qkv_checkpoint,
-                    checkpoint_post_attn=i < num_post_attn_checkpoint,
-                )  # (B, M, D), (B, L, D)
+            x, y_feat = block(
+                x,
+                c,
+                y_feat,
+                rope_cos=rope_cos,
+                rope_sin=rope_sin,
+                packed_indices=packed_indices,
+                checkpoint_ff=i < num_ff_checkpoint,
+                checkpoint_qkv=i < num_qkv_checkpoint,
+                checkpoint_post_attn=i < num_post_attn_checkpoint,
+            )  # (B, M, D), (B, L, D)
 
             if self.enable_audio:
                 if self.audio_mode == "cross_attn":
