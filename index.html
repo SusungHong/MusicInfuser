@@ -255,6 +255,10 @@
             padding: 70px 0;
             border-top: 1px solid var(--rule);
         }
+        .hero + section.work {
+            border-top: none;
+            padding-top: 0;
+        }
         section.work .body {
             margin-left: auto;
             margin-right: auto;
@@ -400,7 +404,7 @@
             font-size: clamp(1.4rem, 3vw, 2rem);
             line-height: 1.2;
             color: var(--accent);
-            margin: 0 auto 32px;
+            margin: 75px auto 0;
             text-align: center;
             letter-spacing: -0.015em;
         }
@@ -502,11 +506,12 @@
                 <a href="https://arxiv.org/abs/2503.14505" class="button"><i class="fa-solid fa-file-lines"></i>Paper</a>
                 <a href="https://github.com/SusungHong/MusicInfuser" class="button ghost"><i class="fa-brands fa-github"></i>Code</a>
             </div>
+
+            <div class="audio-note"><span class="icon"><i class="fa-solid fa-volume-high"></i></span>Please turn on your audio</div>
         </header>
 
         <section class="work">
             <div>
-                <div class="audio-note"><span class="icon"><i class="fa-solid fa-volume-high"></i></span>Please turn on your audio</div>
                 <h2>Comparison with Prior Work</h2>
                 <p class="lead">MusicInfuser infuses listening capability into the text-to-video model (Mochi) and produces dancing videos while preserving prompt adherence.</p>
                 <div class="video-frame">
