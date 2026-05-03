@@ -366,6 +366,16 @@
             border-top: 1px solid var(--rule);
             border-bottom: 1px solid var(--rule);
         }
+        .abstract.wide > div {
+            margin-left: -50px;
+            margin-right: -50px;
+        }
+        @media (max-width: 1200px) {
+            .abstract.wide > div {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
         @media (max-width: 900px) {
             .abstract { padding: 60px 0; }
         }
@@ -376,6 +386,7 @@
             line-height: 1.7;
             color: var(--ink-soft);
             letter-spacing: -0.003em;
+            text-align: center;
         }
 
         /* ---------- Audio note ---------- */
@@ -507,7 +518,7 @@
             </div>
         </section>
 
-        <section class="abstract">
+        <section class="abstract wide">
             <div>
                 <h2>Abstract</h2>
                 <p>We introduce MusicInfuser, an approach that aligns pre-trained text-to-video diffusion models to generate high-quality dance videos synchronized with specified music tracks. Rather than training a multimodal audio-video or audio-motion model from scratch, our method demonstrates how existing video diffusion models can be efficiently adapted to align with musical inputs. We propose a novel layer-wise adaptability criterion based on a guidance-inspired constructive influence function to select adaptable layers, significantly reducing training costs while preserving rich prior knowledge, even with limited, specialized datasets. Experiments show that MusicInfuser effectively bridges the gap between music and video, generating novel and diverse dance movements that respond dynamically to music. Furthermore, our framework generalizes well to unseen music tracks, longer video sequences, and unconventional subjects, outperforming baseline models in consistency and synchronization. All of this is achieved without requiring motion data, with training completed on a single GPU within a day.</p>
