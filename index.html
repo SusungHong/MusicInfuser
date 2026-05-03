@@ -4,381 +4,613 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://susunghong.github.io/MusicInfuser/" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640'><defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'><stop offset='0' stop-color='%234b2e83'/><stop offset='1' stop-color='%2385754d'/></linearGradient></defs><rect width='640' height='640' rx='140' fill='url(%23g)'/><g transform='translate(128 160) scale(0.6)'><path fill='white' d='M533.3 11.4C521 1.7 504.8-2.7 489.3 1.7l-256 64C211.7 71.1 197.3 91.6 197.3 113.8L197.3 173.8 197.3 369.4C181.6 354.7 158.4 345.9 133.3 345.9C75.2 345.9 32 384.1 32 442.8C32 501.5 75.2 539.7 133.3 539.7C189.4 539.7 234.6 503.6 234.6 449.6C234.6 449.5 234.6 449.4 234.6 449.3L234.7 152L490.7 88L490.7 286.8C475 272.1 451.8 263.3 426.7 263.3C368.6 263.3 325.4 301.5 325.4 360.2C325.4 418.9 368.6 457.1 426.7 457.1C482.8 457.1 528 421 528 367C528 366.9 528 366.8 528 366.7L528 47.4C528 33 521.8 19.4 510.2 10.2z'/></g></svg>" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <title>MusicInfuser: Making Video Diffusion Listen and Dance</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        :root {
+            --uw-purple: #4b2e83;
+            --uw-gold: #b7a57a;
+            --ink: #0e0c12;
+            --ink-soft: #2f2c36;
+            --ink-mute: #8a8690;
+            --rule: #e8e6ec;
+            --paper: #ffffff;
+            --paper-2: #f5f4f7;
+            --accent: #4b2e83;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
+            font-family: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
             line-height: 1.6;
-            color: #333;
-            padding: 0;
-            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-feature-settings: "ss01", "ss02";
+        }
+
+        a {
+            color: var(--ink);
+            text-decoration: none;
+            border-bottom: 1px solid var(--ink);
+            transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+        a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+        ::selection { background: var(--accent); color: var(--paper); }
+
+        /* ---------- Top bar ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 28px;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, var(--uw-purple), var(--uw-gold));
+            color: #fff;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 1px 12px -4px rgba(75, 46, 131, 0.25);
+        }
+        .topbar .mark {
+            font-family: "Nunito", sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+            text-transform: none;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .topbar .mark i {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .topbar nav { display: flex; gap: 22px; }
+        .topbar nav a {
+            border-bottom: none;
+            color: rgba(255,255,255,0.85);
+        }
+        .topbar nav a:hover { color: #fff; }
+        @media (max-width: 640px) {
+            .topbar nav { display: none; }
+        }
+
+        /* ---------- Layout ---------- */
+        .page {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        /* ---------- Hero ---------- */
+        .hero {
+            padding: 110px 0 90px;
+            position: relative;
             text-align: center;
-            background: #f8f9fa;
         }
 
-        .main-container {
-            width: 100%;
-            min-height: 100vh;
-            background: #f8f9fa;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            padding-bottom: 0px;
-        }
-
-        .conference {
-            color: #bdfeff;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
+        h1.title {
+            font-family: "Space Grotesk", sans-serif;
             font-weight: 500;
-            letter-spacing: 1px;
+            font-size: clamp(1.9rem, 4.2vw, 2.85rem);
+            line-height: 1.12;
+            letter-spacing: -0.025em;
+            color: var(--ink);
+            margin-bottom: 26px;
         }
 
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(to right, #4b2e83, #85754d);
-            color: white;
-            margin-bottom: 40px;
+        h1.title em {
+            font-family: "Nunito", sans-serif;
+            font-style: normal;
+            font-weight: 800;
+            color: var(--accent);
+            position: relative;
+            white-space: nowrap;
+            padding: 0 0.04em;
+            letter-spacing: -0.015em;
         }
-        
-        .abstract {
-            max-width: 1000px;
-            margin: 0 auto 40px auto;
-            padding: 25px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .abstract p {
-            text-align: left;
-            color: #444;
-            line-height: 1.7;
-        }
-
-        h1 {
-            font-size: 2.4rem;
-            margin-bottom: 30px;
-            line-height: 1.3;
-            color: white;
+        h1.title em::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0.02em;
+            height: 0.16em;
+            background: var(--accent);
+            opacity: 0.16;
+            border-radius: 999px;
+            transform: skewX(-10deg);
+            z-index: -1;
         }
 
-        h2 {
-            font-size: 1.8rem;
-            margin: 30px 0 20px;
-            color: #2c3e50;
-            padding-bottom: 10px;
-            max-width: 80%;
-            margin-left: auto;
-            margin-right: auto;
+        .ornament {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin: 8px 0 30px;
+            color: var(--accent);
+            font-family: "Nunito", sans-serif;
+            font-size: 1rem;
+        }
+        .ornament::before,
+        .ornament::after {
+            content: "";
+            width: 36px;
+            height: 1px;
+            background: linear-gradient(to var(--dir, right), transparent, var(--rule));
+        }
+        .ornament::before { --dir: left; }
+
+        .byline {
+            margin: 0 auto 30px;
+            max-width: 720px;
         }
 
         .authors {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            font-family: "Nunito", sans-serif;
+            font-weight: 600;
+            font-size: 1.10rem;
+            color: var(--ink);
             display: flex;
-            justify-content: center;
             flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .author {
-            color: #ffffff;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .author:hover {
-            color: #3498db;
-        }
-
-        .affiliations {
-            color: #e0e0e0;
-            margin-bottom: 20px;
-            display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 6px 20px;
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
+        }
+        .authors a {
+            border-bottom: 1px solid transparent;
+            color: var(--ink);
+        }
+        .authors a:hover { border-bottom-color: var(--accent); color: var(--accent); }
+        .authors .sep {
+            color: var(--accent);
+            font-weight: 600;
+            opacity: 0.45;
+            font-family: "Nunito", sans-serif;
+        }
+
+        .affil-block {
+            font-family: "Nunito", sans-serif;
+            font-weight: 500;
+            color: var(--ink-mute);
+            font-size: 1.10rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+        }
+        .affil-block .venue {
+            font-weight: 800;
+            font-family: "Nunito", sans-serif;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            font-size: 1.00rem;
+            color: var(--accent);
+            padding: 5px 14px;
+            border: 1.5px solid var(--accent);
+            border-radius: 999px;
         }
 
         .buttons {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 12px;
+            margin-top: 38px;
         }
-
         .button {
             display: inline-flex;
             align-items: center;
-            padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-            font-weight: 500;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            gap: 10px;
+            padding: 12px 22px;
+            background: var(--ink);
+            color: var(--paper);
+            border: 1px solid var(--ink);
+            border-radius: 999px;
+            font-family: "Nunito", sans-serif;
+            font-weight: 700;
+            font-size: 0.96rem;
+            letter-spacing: -0.005em;
+            text-transform: none;
+            transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         }
-
         .button:hover {
-            background: rgba(255, 255, 255, 0.25);
+            background: var(--accent);
+            color: var(--paper);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -8px rgba(75, 46, 131, 0.45);
+        }
+        .button.ghost {
+            background: transparent;
+            color: var(--ink);
+        }
+        .button.ghost:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--paper);
         }
 
-        .video-section {
-            margin: 40px auto;
-            max-width: 1000px;
+        /* ---------- Section ---------- */
+        section.work {
+            padding: 70px 0;
+            border-top: 1px solid var(--rule);
+        }
+        section.work .body {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        section.work.wide .pair {
+            margin-left: -50px;
+            margin-right: -50px;
+            gap: 36px;
+        }
+        @media (max-width: 1200px) {
+            section.work.wide .pair {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+        @media (max-width: 900px) {
+            section.work { padding: 60px 0; }
+            section.work.wide .pair {
+                gap: 28px;
+            }
         }
 
-        .video-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            margin-top: 20px;
+        .track-label {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+            position: sticky;
+            top: 70px;
+            align-self: start;
         }
-
-        .video-box {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .video-box:hover {
-            transform: translateY(-5px);
-        }
-
-        .video-title {
-            font-size: 1.2rem;
+        .track-label .num {
+            color: var(--accent);
             font-weight: 600;
-            margin-bottom: 15px;
-            color: #2c3e50;
+            margin-right: 6px;
         }
 
-        .video-description {
-            font-size: 1rem;
-            color: #666;
-            margin-bottom: 15px;
+        h2 {
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 500;
+            font-size: clamp(1.5rem, 2.6vw, 1.85rem);
+            line-height: 1.15;
+            letter-spacing: -0.015em;
+            color: var(--ink);
+            margin-bottom: 22px;
+            text-align: center;
+        }
+        h2 em {
+            font-style: normal;
+            font-weight: 600;
+            color: var(--accent);
         }
 
-        video {
+        /* ---------- Video ---------- */
+        .video-frame {
+            position: relative;
+            background: var(--ink);
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 1px 0 rgba(14, 12, 18, 0.04),
+                        0 12px 32px -16px rgba(75, 46, 131, 0.18);
+        }
+        .video-frame video {
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 4px;
         }
 
-        .section-divider {
-            margin: 50px auto;
-            height: 2px;
-            background: linear-gradient(to right, transparent, #beb3d2, transparent);
-            width: 80%;
+        .caption {
+            margin: 0 auto 14px;
+            font-size: 0.94rem;
+            line-height: 1.55;
+            color: var(--ink-soft);
+            text-align: center;
+            max-width: 720px;
+        }
+        .lead {
+            margin: -8px auto 22px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--ink-soft);
+            max-width: 720px;
+            text-align: center;
+        }
+        .caption .tag {
+            display: inline-block;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.66rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-right: 10px;
+            vertical-align: 2px;
         }
 
-        .grid-container {
+        .pair {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            max-width: 1000px;
-            margin: 0 auto;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+        @media (max-width: 720px) {
+            .pair { grid-template-columns: 1fr; gap: 36px; }
         }
 
+        /* ---------- Abstract / pull quote ---------- */
+        .abstract {
+            padding: 70px 0;
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+        }
+        @media (max-width: 900px) {
+            .abstract { padding: 60px 0; }
+        }
+        .abstract p {
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 400;
+            font-size: 1.02rem;
+            line-height: 1.7;
+            color: var(--ink-soft);
+            letter-spacing: -0.003em;
+        }
+
+        /* ---------- Audio note ---------- */
+        .audio-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            font-family: "Nunito", sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            line-height: 1.2;
+            color: var(--accent);
+            margin: 0 auto 32px;
+            text-align: center;
+            letter-spacing: -0.015em;
+        }
+        .audio-note .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.4em;
+            height: 1.4em;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.55em;
+            flex-shrink: 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .audio-note .icon i { display: block; }
+        .audio-note::before,
+        .audio-note::after {
+            content: "";
+            flex: 0 1 80px;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+            opacity: 0.4;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(75, 46, 131, 0.35); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(75, 46, 131, 0); }
+        }
+
+        /* ---------- Citation ---------- */
         .bibtex {
-            background: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin: 15px auto;
-            border: 1px solid #eee;
+            background: #f3f3f5;
+            color: var(--ink-soft);
+            padding: 22px 26px;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
             white-space: pre-wrap;
             text-align: left;
-            width: 80%;
-            max-width: 800px;
+            overflow-x: auto;
+            max-width: 760px;
+            margin: 0 auto;
+            border: 1px solid var(--rule);
+            border-radius: 6px;
         }
-        
-        .attribution-banner {
-            background: linear-gradient(to right, #f5f5f5, #f5f5f5);
-            color: grey;
-            text-align: center;
-            padding: 50px;
-            margin-top: 30px;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
-        }
+        .bibtex .k { color: var(--accent); font-weight: 500; }
 
-        @media (max-width: 768px) {
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
+        /* ---------- Footer ---------- */
+        footer {
+            padding: 40px 28px 50px;
+            font-family: "Nunito", sans-serif;
+            font-size: 0.92rem;
+            font-weight: 500;
+            letter-spacing: -0.005em;
+            color: var(--ink-mute);
+            border-top: 1px solid var(--rule);
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            max-width: 880px;
+            margin: 40px auto 0;
+        }
+        footer a { color: var(--ink-mute); border-bottom: 1px solid var(--rule); }
+        footer a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+        @media (max-width: 600px) {
+            .hero { padding: 70px 0 50px; }
+            .topbar { padding: 12px 20px; }
+            .page { padding: 0 20px; }
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <header>
-            <h1>MusicInfuser: Making Video Diffusion Listen and Dance</h1>
-            
-            <div class="authors">
-                <a href="https://susunghong.github.io" class="author">Susung Hong</a>
-                <a href="https://www.irakemelmacher.com/home" class="author">Ira Kemelmacher-Shlizerman</a>
-                <a href="https://homes.cs.washington.edu/~curless/" class="author">Brian Curless</a>
-                <a href="https://www.smseitz.com/" class="author">Steven M. Seitz</a>
+    <div class="topbar">
+        <div class="mark"><i class="fa-solid fa-music"></i>MusicInfuser</div>
+    </div>
+
+    <div class="page">
+        <header class="hero">
+            <h1 class="title">MusicInfuser: Making Video Diffusion <em>Listen</em> and <em>Dance</em></h1>
+
+            <div class="byline">
+                <div class="authors">
+                    <a href="https://susunghong.github.io">Susung Hong</a><span class="sep">·</span>
+                    <a href="https://www.irakemelmacher.com/home">Ira Kemelmacher-Shlizerman</a><span class="sep">·</span>
+                    <a href="https://homes.cs.washington.edu/~curless/">Brian Curless</a><span class="sep">·</span>
+                    <a href="https://www.smseitz.com/">Steven M. Seitz</a>
+                </div>
+                <div class="affil-block">
+                    <span>University of Washington</span>
+                    <span class="venue">CVPR 2026</span>
+                </div>
             </div>
 
-            <div class="affiliations">
-                <div>University of Washington</div>
-            </div>
-
-            <div class="conference">CVPR 2026</div>
-            
             <div class="buttons">
-                <a href="https://arxiv.org/abs/2503.14505" class="button"><i class="fa-solid fa-file-pdf"></i>&ensp;Paper</a>
-                <a href="https://github.com/SusungHong/MusicInfuser" class="button"><i class="fa-brands fa-github"></i>&ensp;Code</a>
+                <a href="https://arxiv.org/abs/2503.14505" class="button"><i class="fa-solid fa-file-lines"></i>Paper</a>
+                <a href="https://github.com/SusungHong/MusicInfuser" class="button ghost"><i class="fa-brands fa-github"></i>Code</a>
             </div>
         </header>
 
-
-        <section class="video-section">
-          <h2>Please turn on your audio! 🔈</h2>
-            
-            <div class="video-box">
-                <div class="video-title">Comparison with Prior Work</div>
-                <div class="video-description">MusicInfuser infuses listening capability into the text-to-video model (Mochi) and produces dancing videos while preserving prompt adherence.</div>
-                <video controls>
-                    <source src="assets/comparison.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </section>
-
-        <div class="section-divider"></div>
-
-        <div class="abstract">
-          <h2>Abstract</h2>
-          <p>We introduce MusicInfuser, an approach for generating high-quality dance videos that are synchronized to a specified music track. Rather than attempting to design and train a new multimodal audio-video model, we show how existing video diffusion models can be adapted to align with musical inputs by introducing lightweight music-video cross-attention and a low-rank adapter. Unlike prior work requiring motion capture data, our approach fine-tunes only on dance videos. MusicInfuser achieves high-quality music-driven video generation while preserving the flexibility and generative capabilities of the underlying models. We introduce an evaluation framework using Video-LLMs to assess multiple dimensions of dance generation quality.</p>
-        </div>
-
-        <div class="section-divider"></div>
-
-        <section class="video-section">
-          <div class="video-box">
-              <div class="video-title">Music- and Text-Controlled Dance Generation</div>
-              <div class="video-description">Dance generation with different music tracks and text prompts, showing the ability to control the style, setting, and dancer attributes.</div>
-              <video controls>
-                  <source src="assets/ours_text.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-              </video>
-          </div>
-        </section>
-
-        <div class="section-divider"></div>
-
-        <section class="video-section">
-            <h2>Audio Speed Control</h2>
-            
-            <div class="grid-container">
-                <div class="video-box">
-                    <div class="video-title">Audio Speed Control</div>
-                    <div class="video-description">The audio input is modified to different speeds, affecting the dance movement accordingly.</div>
+        <section class="work">
+            <div>
+                <div class="audio-note"><span class="icon"><i class="fa-solid fa-volume-high"></i></span>Please turn on your audio</div>
+                <h2>Comparison with Prior Work</h2>
+                <p class="lead">MusicInfuser infuses listening capability into the text-to-video model (Mochi) and produces dancing videos while preserving prompt adherence.</p>
+                <div class="video-frame">
                     <video controls>
-                        <source src="assets/speed_basic.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-                
-                <div class="video-box">
-                    <div class="video-title">Audio Speed Control (Advanced Dance)</div>
-                    <div class="video-description">Same setup but including "advanced dance" in the prompt. Complex choreography also adjusts to speed changes.</div>
-                    <video controls>
-                        <source src="assets/speed_advanced.mp4" type="video/mp4">
+                        <source src="assets/comparison.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                 </div>
             </div>
         </section>
 
-        <div class="section-divider"></div>
+        <section class="abstract">
+            <div>
+                <h2>Abstract</h2>
+                <p>We introduce MusicInfuser, an approach that aligns pre-trained text-to-video diffusion models to generate high-quality dance videos synchronized with specified music tracks. Rather than training a multimodal audio-video or audio-motion model from scratch, our method demonstrates how existing video diffusion models can be efficiently adapted to align with musical inputs. We propose a novel layer-wise adaptability criterion based on a guidance-inspired constructive influence function to select adaptable layers, significantly reducing training costs while preserving rich prior knowledge, even with limited, specialized datasets. Experiments show that MusicInfuser effectively bridges the gap between music and video, generating novel and diverse dance movements that respond dynamically to music. Furthermore, our framework generalizes well to unseen music tracks, longer video sequences, and unconventional subjects, outperforming baseline models in consistency and synchronization. All of this is achieved without requiring motion data, with training completed on a single GPU within a day.</p>
+            </div>
+        </section>
 
-        <section class="video-section">
-            <h2>Group Dance Generation</h2>
-            
-            <div class="grid-container">
-                <div class="video-box">
-                    <div class="video-title">Two Dancers</div>
-                    <div class="video-description">MusicInfuser generalizes to generate dance videos with two dancers by simply modulating the prompt.</div>
+        <section class="work">
+            <div>
+                <h2>Music- and Text-Controlled Dance Generation</h2>
+                <p class="lead">Dance generation with different music tracks and text prompts, showing the ability to control the style, setting, and dancer attributes.</p>
+                <div class="video-frame">
                     <video controls>
-                        <source src="assets/two.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-                
-                <div class="video-box">
-                    <div class="video-title">Multiple Dancers</div>
-                    <div class="video-description">MusicInfuser also generates dance videos with a lot of dancers.</div>
-                    <video controls>
-                        <source src="assets/multiple.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
+                        <source src="assets/ours_text.mp4" type="video/mp4">
                     </video>
                 </div>
             </div>
         </section>
 
-        <div class="section-divider"></div>
-
-        <section class="video-section">
-            
-            <div class="video-box">
-                <div class="video-title">Generalization to Unseen Music</div>
-                <div class="video-description">MusicInfuser shows flexibility by adapting to in-the-wild music tracks outside the training distribution.</div>
-                <video controls>
-                    <source src="assets/in_the_wild.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
+        <section class="work wide">
+            <div>
+                <h2>Audio Speed Control</h2>
+                <div class="pair">
+                    <div>
+                        <p class="caption">The audio input is modified to different speeds, affecting the dance movement accordingly.</p>
+                        <div class="video-frame">
+                            <video controls><source src="assets/speed_basic.mp4" type="video/mp4"></video>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="caption">Same setup but including &ldquo;advanced dance&rdquo; in the prompt. Complex choreography also adjusts to speed changes.</p>
+                        <div class="video-frame">
+                            <video controls><source src="assets/speed_advanced.mp4" type="video/mp4"></video>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <div class="section-divider"></div>
-
-        <section class="video-section">
-            
-            <div class="video-box">
-                <div class="video-title">Longer Dance Videos (Extrapolation)</div>
-                <div class="video-description">We generate longer dance videos that are 2 times longer than the videos used for training, demonstrating our method's ability to generalize to longer sequences.</div>
-                <video controls>
-                    <source src="assets/long_video.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
+        <section class="work wide">
+            <div>
+                <h2>Group Dance Generation</h2>
+                <div class="pair">
+                    <div>
+                        <p class="caption">MusicInfuser generalizes to generate dance videos with two dancers by simply modulating the prompt.</p>
+                        <div class="video-frame">
+                            <video controls><source src="assets/two.mp4" type="video/mp4"></video>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="caption">MusicInfuser also generates dance videos with a lot of dancers.</p>
+                        <div class="video-frame">
+                            <video controls><source src="assets/multiple.mp4" type="video/mp4"></video>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <section class="work">
+            <div>
+                <h2>Generalization to Unseen Music</h2>
+                <p class="lead">MusicInfuser shows flexibility by adapting to in-the-wild music tracks outside the training distribution.</p>
+                <div class="video-frame">
+                    <video controls><source src="assets/in_the_wild.mp4" type="video/mp4"></video>
+                </div>
+            </div>
+        </section>
 
-        <div class="section-divider"></div>
+        <section class="work">
+            <div>
+                <h2>Generalization to Unseen Subjects</h2>
+                <p class="lead">MusicInfuser generalizes beyond the training distribution to unseen subjects, generating dance videos for characters and appearances not present in the alignment data.</p>
+                <div class="video-frame">
+                    <video controls><source src="assets/unseen_subjects.mp4" type="video/mp4"></video>
+                </div>
+            </div>
+        </section>
 
-        <section class="citation-section">
-            <h2>Citation</h2>
-            <pre class="bibtex">@article{hong2025musicinfuser,
-  title={MusicInfuser: Making Video Diffusion Listen and Dance},
-  author={Hong, Susung and Kemelmacher-Shlizerman, Ira and Curless, Brian and Seitz, Steven M},
-  journal={arXiv preprint arXiv:2503.14505},
-  year={2025}
+        <section class="work">
+            <div>
+                <h2>Longer Dance Videos (Extrapolation)</h2>
+                <p class="lead">We generate longer dance videos that are 2 times longer than the videos used for training, demonstrating our method's ability to generalize to longer sequences.</p>
+                <div class="video-frame">
+                    <video controls><source src="assets/long_video.mp4" type="video/mp4"></video>
+                </div>
+            </div>
+        </section>
+
+        <section class="work">
+            <div>
+                <h2>Citation</h2>
+                <pre class="bibtex">@article{hong2025musicinfuser,
+  <span class="k">title</span>   = {MusicInfuser: Making Video Diffusion Listen and Dance},
+  <span class="k">author</span>  = {Hong, Susung and Kemelmacher-Shlizerman, Ira and Curless, Brian and Seitz, Steven M},
+  <span class="k">journal</span> = {arXiv preprint arXiv:2503.14505},
+  <span class="k">year</span>    = {2025}
 }</pre>
+            </div>
         </section>
-        
-        <div class="attribution-banner">
-            This template was originally made by <a href="https://susunghong.github.io">Susung Hong</a> for the <a href="https://susunghong.github.io/MusicInfuser/">MusicInfuser</a> project.
-        </div>
     </div>
+
+    <footer>
+        <div>Template by <a href="https://susunghong.github.io">Susung Hong</a> for the MusicInfuser project.</div>
+    </footer>
 </body>
 </html>
